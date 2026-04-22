@@ -28,6 +28,12 @@ const Upload = ({ onComplete }: UploadProps) => {
 
       const reader = new FileReader();
 
+      reader.onerror = () => {
+        setFile(null);
+        setProgress(0);
+        alert("Failed to read file. Please try again.");
+      };
+
       reader.onload = (e) => {
         const base64String = e.target?.result as string;
 
@@ -92,7 +98,14 @@ const Upload = ({ onComplete }: UploadProps) => {
     setIsDragging(false);
 
     const files = e.dataTransfer.files;
+
+    const allowTypes =["image/jpeg", "image/png", "image/jpg"];
+    
     if (files && files.length > 0) {
+      if (!allowTypes.includes(files[0].type)) {
+        alert("Unsupported file type. Please upload a JPG or PNG image.");
+        return;
+      }
       processFile(files[0]);
     }
   };
