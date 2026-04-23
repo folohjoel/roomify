@@ -166,33 +166,37 @@ export const getProjectById = async ({ id }: { id: string }) => {
       const bodyText = await response.text();
       console.error("Failed to fetch project:", response.status, bodyText);
 
-      if (
-        response.status === 404 &&
-        bodyText.includes("Page api,projects,get not found")
-      ) {
-        console.warn(
-          "GET route missing on worker, falling back to project list lookup",
-        );
-        const fallbackResponse = await puter.workers.exec(
-          `${PUTER_WORKER_URL}/api/projects/list`,
-          {
-            method: "GET",
-            headers: {
-              Accept: "application/json",
+      if (response.status === 404) {
+        try {
+          JSON.parse(bodyText);
+          // If JSON parses, it's likely a project not found error, return null
+          return null;
+        } catch {
+          // If not JSON, it's likely a route not found error, fallback to list
+          console.warn(
+            "GET route missing on worker, falling back to project list lookup",
+          );
+          const fallbackResponse = await puter.workers.exec(
+            `${PUTER_WORKER_URL}/api/projects/list`,
+            {
+              method: "GET",
+              headers: {
+                Accept: "application/json",
+              },
             },
-          },
-        );
+          );
 
-        if (fallbackResponse.ok) {
-          const listData = (await fallbackResponse.json()) as {
-            projects?: DesignItem[] | null;
-          };
-          const project =
-            listData?.projects?.find((item) => item.id === id) ?? null;
+          if (fallbackResponse.ok) {
+            const listData = (await fallbackResponse.json()) as {
+              projects?: DesignItem[] | null;
+            };
+            const project =
+              listData?.projects?.find((item) => item.id === id) ?? null;
 
-          if (project) {
-            console.log("Found project via list fallback:", project);
-            return project;
+            if (project) {
+              console.log("Found project via list fallback:", project);
+              return project;
+            }
           }
         }
       }

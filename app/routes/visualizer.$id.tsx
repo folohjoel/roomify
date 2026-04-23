@@ -21,12 +21,17 @@ const VisualizerId = () => {
   const handleBack = () => navigate("/");
 
   const runGeneration = async (item: DesignItem) => {
-    if (!id || !item.sourceImage) return;
+    // Capture the current route ID to prevent state updates from stale async operations
+    const capturedId = id;
+    if (!capturedId || !item.sourceImage) return;
 
     try {
       setIsProcessing(true);
 
       const result = await generate3DView({ sourceImage: item.sourceImage });
+
+      // Guard: verify route ID hasn't changed after await
+      if (capturedId !== id) return;
 
       if (result.renderedImage) {
         setCurrentImage(result.renderedImage);
@@ -44,6 +49,9 @@ const VisualizerId = () => {
           item: updatedItem,
           visibility: "private",
         });
+
+        // Guard: verify route ID hasn't changed after await
+        if (capturedId !== id) return;
 
         if (saved) {
           setProject(saved);
@@ -67,6 +75,9 @@ const VisualizerId = () => {
       }
 
       setIsProjectLoading(true);
+      // Clear stale UI state immediately when starting to load a different project
+      setProject(null);
+      setCurrentImage(null);
 
       const fetchedProject = await getProjectById({ id });
 
