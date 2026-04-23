@@ -1,23 +1,130 @@
-import React from 'react'
-import { useLocation } from 'react-router';
+import React, { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router";
+import { generate3DView } from "../../lib/ai.action";
+import { Box, Download, RefreshCcw, Share2, X } from "lucide-react";
+import Button from "../../components/ui/Button";
 
 const VisualizerId = () => {
-    const location = useLocation();
-    const { initialImage, initialRender, name, sharedBy } = location.state || {};
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { initialImage, initialRender, name, sharedBy } = location.state || {};
+
+  const hasInitialGenerated = useRef(false);
+
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [currentImage, setCurrentImage] = useState<string | null>(
+    initialRender || null,
+  );
+
+  const handleBack = () => navigate("/");
+
+  const runGeneration = async () => {
+    if (!initialImage) return;
+
+    try {
+      setIsProcessing(true);
+
+      const result = await generate3DView({ sourceImage: initialImage });
+
+      if (result.renderedImage) {
+        setCurrentImage(result.renderedImage);
+
+        // Update the project with the rendered image.
+      }
+    } catch (error) {
+      console.error("Error generating 3D view:", error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!initialImage || hasInitialGenerated.current) return;
+
+    if (initialRender) {
+      setCurrentImage(initialRender);
+      hasInitialGenerated.current = true;
+      return;
+    }
+
+    hasInitialGenerated.current = true;
+    runGeneration();
+  }, [initialImage, initialRender]);
+
   return (
-    <section>
-        <h1>{name || "Untitled Project"}</h1>
+    <div className="visualizer">
+      <nav className="topbar">
+        <div className="brand">
+          <Box className="logo" />
 
-        <div className="visualizer">
-            {initialImage && (
-                <div className="image-container">
-                    <h2>Source Image</h2>
-                    <img src={initialImage} alt="Source" />
-                </div>
-            )}
+          <span className="name">Roomify</span>
         </div>
-    </section>
-  )
-}
 
-export default VisualizerId
+        <Button variant="ghost" size="sm" onClick={handleBack} className="exit">
+          <X /> Exit Editor
+        </Button>
+      </nav>
+
+      <section className="content">
+        <div className="panel">
+          <div className="panel-header">
+            <div className="panel-meta">
+              <p className="">Project</p>
+              <h2 className="">{"Untitled Project"}</h2>
+              <p className="note">Created by You</p>
+            </div>
+
+            <div className="panel-actions">
+              <Button
+                size="sm"
+                onClick={() => {}}
+                className="export"
+                disabled={isProcessing || !currentImage}
+              >
+                <Download className="w-4 h-4 mr-2" /> Export
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {}}
+                className="share"
+              >
+                <Share2 className="w-4 h-4 mr-2" /> Share
+              </Button>
+            </div>
+          </div>
+
+          <div className={`render-area ${isProcessing ? "is-processing" : ""}`}>
+            {currentImage ? (
+              <img src={currentImage} alt="AI Render" className="render-img" />
+            ) : (
+              <div className="render-placeholder">
+                {initialImage && (
+                  <img
+                    src={initialImage}
+                    alt="Original"
+                    className="render-fallback"
+                  />
+                )}
+              </div>
+            )}
+
+            {isProcessing && (
+              <div className="render-overlay">
+                <div className="rendering-card">
+                  <RefreshCcw className="spinner" />
+                  <span className="title">Rendering...</span>
+                  <span className="title">
+                    Generating your 3D visualization...
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default VisualizerId;
