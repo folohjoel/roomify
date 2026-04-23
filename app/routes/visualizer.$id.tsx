@@ -4,6 +4,10 @@ import { generate3DView } from "../../lib/ai.action";
 import { Box, Download, RefreshCcw, Share2, X } from "lucide-react";
 import Button from "../../components/ui/Button";
 import { createProject, getProjectById } from "../../lib/puter.action";
+import {
+  ReactCompareSlider,
+  ReactCompareSliderImage,
+} from "react-compare-slider";
 
 const VisualizerId = () => {
   const { id } = useParams();
@@ -19,6 +23,44 @@ const VisualizerId = () => {
   const [currentImage, setCurrentImage] = useState<string | null>(null);
 
   const handleBack = () => navigate("/");
+
+  const handleExport = () => {
+    if (!currentImage) return;
+
+    const link = document.createElement("a");
+    link.href = currentImage;
+    link.download = `roomify-${project?.id || "export"}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleShare = async () => {
+    if (!currentImage) return;
+
+    const shareUrl = `${window.location.origin}${window.location.pathname}`;
+    const shareText = `Check out my 3D room visualization on Roomify!`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "Roomify - Room Visualization",
+          text: shareText,
+          url: shareUrl,
+        });
+      } catch (error) {
+        console.error("Error sharing:", error);
+      }
+    } else {
+      // Fallback: copy to clipboard
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        alert("Share link copied to clipboard!");
+      } catch (error) {
+        console.error("Error copying to clipboard:", error);
+      }
+    }
+  };
 
   const runGeneration = async (item: DesignItem) => {
     // Capture the current route ID to prevent state updates from stale async operations
@@ -142,7 +184,7 @@ const VisualizerId = () => {
             <div className="panel-actions">
               <Button
                 size="sm"
-                onClick={() => {}}
+                onClick={handleExport}
                 className="export"
                 disabled={isProcessing || !currentImage}
               >
@@ -151,7 +193,7 @@ const VisualizerId = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => {}}
+                onClick={handleShare}
                 className="share"
               >
                 <Share2 className="w-4 h-4 mr-2" /> Share
@@ -183,6 +225,49 @@ const VisualizerId = () => {
                     Generating your 3D visualization...
                   </span>
                 </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="panel compare">
+          <div className="panel-header">
+            <div className="panel-meta">
+              <p className="">Comparison</p>
+              <h3 className="">Before and After</h3>
+            </div>
+            <div className="hint">Drag to compare</div>
+          </div>
+
+          <div className="compare-stage">
+            {project?.sourceImage && currentImage ? (
+              <ReactCompareSlider
+                defaultValue={50}
+                style={{ width: "100%", height: "auto" }}
+                itemOne={
+                  <ReactCompareSliderImage
+                    src={project.sourceImage}
+                    alt="Original"
+                    className="compare-img"
+                  />
+                }
+                itemTwo={
+                  <ReactCompareSliderImage
+                    src={currentImage ?? project?.renderedImage}
+                    alt="AI Render"
+                    className="compare-img"
+                  />
+                }
+              />
+            ) : (
+              <div className="compare-fallback">
+                {project?.sourceImage && (
+                  <img
+                    src={project.sourceImage}
+                    alt="Original"
+                    className="compare-img"
+                  />
+                )}
               </div>
             )}
           </div>
