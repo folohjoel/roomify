@@ -77,7 +77,6 @@ export const createProject = async ({
     renderedImage: resolvedRender,
   };
 
-
   try {
     const response = await puter.workers.exec(
       `${PUTER_WORKER_URL}/api/projects/save`,
@@ -137,8 +136,10 @@ export const getProjectById = async ({ id }: { id: string }) => {
   }
 
   try {
-    if (!await getCurrentUser()) {
-      console.warn("User not authenticated, attempting sign in before fetching project");
+    if (!(await getCurrentUser())) {
+      console.warn(
+        "User not authenticated, attempting sign in before fetching project",
+      );
       await signIn();
     }
   } catch (error) {
@@ -186,7 +187,8 @@ export const getProjectById = async ({ id }: { id: string }) => {
           const listData = (await fallbackResponse.json()) as {
             projects?: DesignItem[] | null;
           };
-          const project = listData?.projects?.find((item) => item.id === id) ?? null;
+          const project =
+            listData?.projects?.find((item) => item.id === id) ?? null;
 
           if (project) {
             console.log("Found project via list fallback:", project);
