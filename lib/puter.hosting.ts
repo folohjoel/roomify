@@ -14,11 +14,15 @@ type HostedAsset = { url: string };
 
 export const getOrCreateHostingConfig =
   async (): Promise<HostingConfig | null> => {
-    const existing = (await puter.kv.get(
-      HOSTING_CONFIG_KEY,
-    )) as HostingConfig | null;
+    try {
+      const existing = (await puter.kv.get(
+        HOSTING_CONFIG_KEY,
+      )) as HostingConfig | null;
 
-    if (existing?.subdomain) return { subdomain: existing.subdomain };
+      if (existing?.subdomain) return { subdomain: existing.subdomain };
+    } catch (error) {
+      console.warn(`Could not get hosting config: ${error}`);
+    }
 
     const subdomain = createHostingSlug();
 
