@@ -150,10 +150,17 @@ export default function Home() {
                 sourceImage,
                 timestamp,
                 ownerId,
+                ownerName,
+                sharedBy,
+                isPublic,
               }) => {
                 const isOwnedByCurrentUser = Boolean(
                   userId && ownerId === userId,
                 );
+                const isCommunity = Boolean(isPublic);
+                const projectAuthor = isCommunity
+                  ? sharedBy || ownerName || "Community"
+                  : "You";
 
                 return (
                   <div
@@ -201,9 +208,11 @@ export default function Home() {
                         className=""
                       />
 
-                      <div className="badge">
-                        <span>Community</span>
-                      </div>
+                      {isCommunity && (
+                        <div className="badge">
+                          <span>Community</span>
+                        </div>
+                      )}
                     </div>
                     <div className="card-body">
                       <div className="">
@@ -214,7 +223,7 @@ export default function Home() {
                           <span>
                             {new Date(timestamp).toLocaleDateString()}
                           </span>
-                          <span>By Foloh Joel</span>
+                          <span>By {projectAuthor}</span>
                         </div>
                       </div>
                       <div className="arrow">

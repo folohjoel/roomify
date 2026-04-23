@@ -18,6 +18,40 @@ export const getCurrentUser = async () => {
   }
 };
 
+const postProjectAction = async (
+  endpoint: string,
+  body: Record<string, unknown>,
+): Promise<DesignItem | null> => {
+  if (!PUTER_WORKER_URL) {
+    console.warn("Missing VITE_PUTER_WORKER_URL; skip project action;");
+    return null;
+  }
+
+  try {
+    const response = await puter.workers.exec(
+      `${PUTER_WORKER_URL}/api/projects/${endpoint}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      },
+    );
+
+    if (!response.ok) {
+      console.error(`Failed to ${endpoint} project`, await response.text());
+      return null;
+    }
+
+    const data = (await response.json()) as { project?: DesignItem | null };
+    return data?.project ?? null;
+  } catch (e) {
+    console.error(`Failed to ${endpoint} project`, e);
+    return null;
+  }
+};
+
 export const createProject = async ({
   item,
   visibility = "private",
@@ -128,6 +162,16 @@ export const getProjects = async () => {
     return [];
   }
 };
+
+export const shareProject = async ({
+  id,
+}: ShareProjectParams): Promise<DesignItem | null> =>
+  postProjectAction("share", { id });
+
+export const unshareProject = async ({
+  id,
+}: UnshareProjectParams): Promise<DesignItem | null> =>
+  postProjectAction("unshare", { id });
 
 export const getProjectById = async ({ id }: { id: string }) => {
   if (!PUTER_WORKER_URL) {

@@ -7,6 +7,8 @@ import {
   createProject,
   deleteProject,
   getProjectById,
+  shareProject,
+  unshareProject,
 } from "../../lib/puter.action";
 import {
   ReactCompareSlider,
@@ -24,6 +26,7 @@ const VisualizerId = () => {
   const [isProjectLoading, setIsProjectLoading] = useState(true);
 
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [currentImage, setCurrentImage] = useState<string | null>(null);
 
@@ -67,7 +70,7 @@ const VisualizerId = () => {
     document.body.removeChild(link);
   };
 
-  const handleShare = async () => {
+  const shareUrlToClipboard = async () => {
     if (!currentImage) return;
 
     const shareUrl = `${window.location.origin}${window.location.pathname}`;
@@ -80,17 +83,47 @@ const VisualizerId = () => {
           text: shareText,
           url: shareUrl,
         });
+        return;
       } catch (error) {
         console.error("Error sharing:", error);
       }
-    } else {
-      // Fallback: copy to clipboard
-      try {
-        await navigator.clipboard.writeText(shareUrl);
-        alert("Share link copied to clipboard!");
-      } catch (error) {
-        console.error("Error copying to clipboard:", error);
+    }
+
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      alert("Share link copied to clipboard!");
+    } catch (error) {
+      console.error("Error copying to clipboard:", error);
+    }
+  };
+
+  const handleShareToggle = async () => {
+    if (!project?.id) return;
+
+    setIsSharing(true);
+    try {
+      const isCurrentlyPublic = project.isPublic === true;
+      const updatedProject = isCurrentlyPublic
+        ? await unshareProject({ id: project.id })
+        : await shareProject({ id: project.id });
+
+      if (!updatedProject) {
+        alert(
+          `Unable to ${isCurrentlyPublic ? "unshare" : "share"} project. Please try again.`,
+        );
+        return;
       }
+
+      setProject(updatedProject);
+
+      if (!isCurrentlyPublic) {
+        await shareUrlToClipboard();
+      }
+    } catch (error) {
+      console.error("Error toggling share state:", error);
+      alert("An unexpected error occurred while updating share status.");
+    } finally {
+      setIsSharing(false);
     }
   };
 
@@ -225,10 +258,12 @@ const VisualizerId = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={handleShare}
+                onClick={handleShareToggle}
                 className="share"
+                disabled={isProcessing || isSharing || !project?.id}
               >
-                <Share2 className="w-4 h-4 mr-2" /> Share
+                <Share2 className="w-4 h-4 mr-2" />
+                {project?.isPublic ? "Unshare" : "Share"}
               </Button>
               <Button
                 variant="ghost"
