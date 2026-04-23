@@ -122,6 +122,10 @@ interface CreateProjectParams {
   visibility?: "private" | "public";
 }
 
+interface DeleteProjectParams {
+  id: string;
+}
+
 interface Generate3DViewParams {
   sourceImage: string;
   projectId?: string | null;

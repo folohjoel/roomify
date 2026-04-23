@@ -1,11 +1,15 @@
 import type { Route } from "./+types/home";
 import Navbar from "../../components/Navbar";
-import { ArrowRight, ArrowUpRight, Clock, Layers } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Clock, Layers, Trash2 } from "lucide-react";
 import Button from "../../components/ui/Button";
 import Upload from "../../components/Upload";
-import { useNavigate } from "react-router";
+import { useNavigate, useOutletContext } from "react-router";
 import { useEffect, useRef, useState } from "react";
-import { createProject, getProjects } from "../../lib/puter.action";
+import {
+  createProject,
+  deleteProject,
+  getProjects,
+} from "../../lib/puter.action";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -16,7 +20,11 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Home() {
   const navigate = useNavigate();
+  const { userId } = useOutletContext<AuthContext>();
   const [projects, setProjects] = useState<DesignItem[]>([]);
+  const [deletingProjectId, setDeletingProjectId] = useState<string | null>(
+    null,
+  );
   const isCreatingProjectRef = useRef(false);
 
   const handleUploadComplete = async (base64Data: string) => {
@@ -135,40 +143,87 @@ export default function Home() {
 
           <div className="projects-grid">
             {projects.map(
-              ({ id, name, renderedImage, sourceImage, timestamp }) => (
-                <div
-                  key={id}
-                  className="project-card group"
-                  onClick={() => navigate(`/visualizer/${id}`)}
-                >
-                  <div className="preview">
-                    <img
-                      src={renderedImage || sourceImage}
-                      alt="Project"
-                      className=""
-                    />
+              ({
+                id,
+                name,
+                renderedImage,
+                sourceImage,
+                timestamp,
+                ownerId,
+              }) => {
+                const isOwnedByCurrentUser = Boolean(
+                  userId && ownerId === userId,
+                );
 
-                    <div className="badge">
-                      <span>Community</span>
-                    </div>
-                  </div>
+                return (
+                  <div
+                    key={id}
+                    className="project-card group relative overflow-hidden"
+                    onClick={() => navigate(`/visualizer/${id}`)}
+                  >
+                    {isOwnedByCurrentUser && (
+                      <button
+                        type="button"
+                        onClick={async (event) => {
+                          event.stopPropagation();
+                          const confirmed = window.confirm(
+                            "Are you sure you want to delete this project? This cannot be undone.",
+                          );
 
-                  <div className="card-body">
-                    <div className="">
-                      <h3 className="">{name}</h3>
+                          if (!confirmed) return;
 
-                      <div className="meta">
-                        <Clock size={12} />
-                        <span>{new Date(timestamp).toLocaleDateString()}</span>
-                        <span>By Foloh Joel</span>
+                          setDeletingProjectId(id);
+
+                          const deleted = await deleteProject({ id });
+                          setDeletingProjectId(null);
+
+                          if (deleted) {
+                            setProjects((prev) =>
+                              prev.filter((project) => project.id !== id),
+                            );
+                          } else {
+                            alert(
+                              "Unable to delete project. Please try again.",
+                            );
+                          }
+                        }}
+                        className="absolute right-3 top-3 z-10 rounded-full bg-white/95 p-2 text-zinc-600 shadow-sm transition-opacity duration-200 hover:bg-red-100 hover:text-red-600 opacity-0 group-hover:opacity-100"
+                        disabled={deletingProjectId === id}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+
+                    <div className="preview">
+                      <img
+                        src={renderedImage || sourceImage}
+                        alt="Project"
+                        className=""
+                      />
+
+                      <div className="badge">
+                        <span>Community</span>
                       </div>
                     </div>
-                    <div className="arrow">
-                      <ArrowUpRight size={18} />
+                    <div className="card-body">
+                      <div className="">
+                        <h3 className="">{name}</h3>
+
+                        <div className="meta">
+                          <Clock size={12} />
+                          <span>
+                            {new Date(timestamp).toLocaleDateString()}
+                          </span>
+                          <span>By Foloh Joel</span>
+                        </div>
+                      </div>
+                      <div className="arrow">
+                        <ArrowUpRight size={18} />
+                      </div>
                     </div>
                   </div>
-                </div>
-              ),
+                );
+              },
             )}
           </div>
         </div>

@@ -1,9 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router";
 import { generate3DView } from "../../lib/ai.action";
-import { Box, Download, RefreshCcw, Share2, X } from "lucide-react";
+import { Box, Download, RefreshCcw, Share2, Trash, X } from "lucide-react";
 import Button from "../../components/ui/Button";
-import { createProject, getProjectById } from "../../lib/puter.action";
+import {
+  createProject,
+  deleteProject,
+  getProjectById,
+} from "../../lib/puter.action";
 import {
   ReactCompareSlider,
   ReactCompareSliderImage,
@@ -20,9 +24,37 @@ const VisualizerId = () => {
   const [isProjectLoading, setIsProjectLoading] = useState(true);
 
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [currentImage, setCurrentImage] = useState<string | null>(null);
 
   const handleBack = () => navigate("/");
+
+  const handleDelete = async () => {
+    if (!project?.id) return;
+
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this project? This cannot be undone.",
+    );
+
+    if (!confirmed) return;
+
+    setIsDeleting(true);
+
+    try {
+      const deleted = await deleteProject({ id: project.id });
+
+      if (deleted) {
+        navigate("/");
+      } else {
+        alert("Unable to delete project. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error deleting project:", error);
+      alert("An unexpected error occurred while deleting the project.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const handleExport = () => {
     if (!currentImage) return;
@@ -197,6 +229,15 @@ const VisualizerId = () => {
                 className="share"
               >
                 <Share2 className="w-4 h-4 mr-2" /> Share
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleDelete}
+                className="delete"
+                disabled={isProcessing || isDeleting || !project?.id}
+              >
+                <Trash className="w-4 h-4 mr-2" /> Delete
               </Button>
             </div>
           </div>
