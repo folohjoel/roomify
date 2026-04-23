@@ -34,7 +34,7 @@ export const getOrCreateHostingConfig =
       console.warn(`Could not find subdomain: ${error}`);
       return null;
     }
-  };
+  }; // Last timeline: 1:48:25
 
 export const uploadImageToHosting = async ({
   hosting,
