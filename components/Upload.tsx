@@ -99,8 +99,8 @@ const Upload = ({ onComplete }: UploadProps) => {
 
     const files = e.dataTransfer.files;
 
-    const allowTypes =["image/jpeg", "image/png", "image/jpg"];
-    
+    const allowTypes = ["image/jpeg", "image/png", "image/jpg"];
+
     if (files && files.length > 0) {
       if (!allowTypes.includes(files[0].type)) {
         alert("Unsupported file type. Please upload a JPG or PNG image.");
@@ -139,7 +139,7 @@ const Upload = ({ onComplete }: UploadProps) => {
                 : "Sign in or sign up with Puter to upload your floor plan"}
             </p>
 
-            <p className="help">Maximum file size 50 MB.</p>
+            <p className="help">Maximum file size 10 MB.</p>
           </div>
         </div>
       ) : (
@@ -156,7 +156,7 @@ const Upload = ({ onComplete }: UploadProps) => {
             <h3>{file.name}</h3>
 
             <div className="progress">
-              <div className="progress-bar" style={{ width: `${progress}%` }} />
+              <div className="bar" style={{ width: `${progress}%` }} />
 
               <p className="status-text">
                 {progress < 100 ? `Analyzing Floor Plan...` : "Redirecting..."}
