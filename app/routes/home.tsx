@@ -13,8 +13,8 @@ import {
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
+    { title: "Roomify" },
+    { name: "description", content: "Turn your boring 2D floor plans into stunning 3D renders with Roomify!" },
   ];
 }
 
@@ -94,7 +94,7 @@ export default function Home() {
           <p>Introducing Roomify 1.0</p>
         </div>
 
-        <h1>Build beautiful spaces at the speed of thought with Roomify</h1>
+        <h1 className="">Build beautiful spaces at the speed of thought with Roomify</h1>
 
         <p className={"subtitle"}>
           Roomify is an AI-first design evironment that helps you visualize,
