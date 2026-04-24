@@ -243,7 +243,12 @@ const VisualizerId = () => {
               <h2 className="">
                 {project?.name || `Residence ${project?.id}`}
               </h2>
-              <p className="note">Created by You</p>
+              <p className="note">
+                Created by{" "}
+                {userId && project?.ownerId === userId
+                  ? "You"
+                  : project?.ownerName || "Unknown"}
+              </p>
             </div>
 
             <div className="panel-actions">
@@ -255,25 +260,29 @@ const VisualizerId = () => {
               >
                 <Download className="w-4 h-4 mr-2" /> Export
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleShareToggle}
-                className="share"
-                disabled={isProcessing || isSharing || !project?.id}
-              >
-                <Share2 className="w-4 h-4 mr-2" />
-                {project?.isPublic ? "Unshare" : "Share"}
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleDelete}
-                className="delete"
-                disabled={isProcessing || isDeleting || !project?.id}
-              >
-                <Trash className="w-4 h-4 mr-2" /> Delete
-              </Button>
+              {userId && project?.ownerId === userId && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleShareToggle}
+                    className="share"
+                    disabled={isProcessing || isSharing || !project?.id}
+                  >
+                    <Share2 className="w-4 h-4 mr-2" />
+                    {project?.isPublic ? "Unshare" : "Share"}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleDelete}
+                    className="delete"
+                    disabled={isProcessing || isDeleting || !project?.id}
+                  >
+                    <Trash className="w-4 h-4 mr-2" /> Delete
+                  </Button>
+                </>
+              )}
             </div>
           </div>
 
