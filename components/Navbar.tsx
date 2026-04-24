@@ -63,9 +63,9 @@ const Navbar = () => {
                 Log In
               </Button>
 
-              <a href={"#upload"} className={"cta"}>
+              <Button onClick={handleAuthClick} size={"sm"} className={"cta"}>
                 Get Started
-              </a>
+              </Button>
             </>
           )}
         </div>
