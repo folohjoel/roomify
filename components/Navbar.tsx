@@ -30,7 +30,7 @@ const Navbar = () => {
           <div className={"brand"}>
             <Box className={"logo"} />
 
-            <span className={"name"}>Roomify</span>
+            <span className={"name"}>PlanD</span>
           </div>
 
           <ul className={"links"}>
@@ -44,7 +44,7 @@ const Navbar = () => {
         <div className={"actions"}>
           {isSignedIn ? (
             <>
-              <span className={"greeting"}>
+              <span className={"greeting hidden sm:inline"}>
                 {userName ? `Hi, ${userName}` : "Signed in"}
               </span>
 
@@ -54,7 +54,12 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <Button onClick={handleAuthClick} size={"sm"} variant={"ghost"}>
+              <Button
+                onClick={handleAuthClick}
+                size={"sm"}
+                variant={"ghost"}
+                className="hidden sm:inline-flex"
+              >
                 Log In
               </Button>
 

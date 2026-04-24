@@ -3,9 +3,9 @@ export const PUTER_WORKER_URL = rawPuterWorkerUrl.replace(/\/+$/, "");
 
 // Storage Paths
 export const STORAGE_PATHS = {
-  ROOT: "roomify",
-  SOURCES: "roomify/sources",
-  RENDERS: "roomify/renders",
+  ROOT: "pland",
+  SOURCES: "pland/sources",
+  RENDERS: "pland/renders",
 } as const;
 
 // Timing Constants (in milliseconds)
@@ -25,7 +25,7 @@ export const UNAUTHORIZED_STATUSES = [401, 403];
 // Image Dimensions
 export const IMAGE_RENDER_DIMENSION = 1024;
 
-export const ROOMIFY_RENDER_PROMPT = `
+export const PLAND_RENDER_PROMPT = `
 TASK: Convert the input 2D floor plan into a **photorealistic, top‑down 3D architectural render**.
 
 STRICT REQUIREMENTS (do not violate):

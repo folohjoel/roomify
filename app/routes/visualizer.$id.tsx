@@ -64,7 +64,7 @@ const VisualizerId = () => {
 
     const link = document.createElement("a");
     link.href = currentImage;
-    link.download = `roomify-${project?.id || "export"}.png`;
+    link.download = `pland-${project?.id || "export"}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -74,12 +74,12 @@ const VisualizerId = () => {
     if (!currentImage) return;
 
     const shareUrl = `${window.location.origin}${window.location.pathname}`;
-    const shareText = `Check out my 3D room visualization on Roomify!`;
+    const shareText = `Check out my 3D room visualization on PlanD!`;
 
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "Roomify - Room Visualization",
+          title: "PlanD - Room Visualization",
           text: shareText,
           url: shareUrl,
         });
@@ -227,7 +227,7 @@ const VisualizerId = () => {
         <div className="brand">
           <Box className="logo" />
 
-          <span className="name">Roomify</span>
+          <span className="name">PlanD</span>
         </div>
 
         <Button variant="ghost" size="sm" onClick={handleBack} className="exit">

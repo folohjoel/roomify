@@ -13,8 +13,12 @@ import {
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Roomify" },
-    { name: "description", content: "Turn your boring 2D floor plans into stunning 3D renders with Roomify!" },
+    { title: "PlanD" },
+    {
+      name: "description",
+      content:
+        "Turn your boring 2D floor plans into stunning 3D renders with PlanD!",
+    },
   ];
 }
 
@@ -91,13 +95,15 @@ export default function Home() {
             <div className={"pulse"}></div>
           </div>
 
-          <p>Introducing Roomify 1.0</p>
+          <p>Introducing PlanD 1.0</p>
         </div>
 
-        <h1 className="">Build beautiful spaces at the speed of thought with Roomify</h1>
+        <h1 className="hero-title">
+          Build beautiful spaces at the speed of thought with PlanD
+        </h1>
 
         <p className={"subtitle"}>
-          Roomify is an AI-first design evironment that helps you visualize,
+          PlanD is an AI-first design evironment that helps you visualize,
           render, and ship architectural projects faster than ever.
         </p>
 
